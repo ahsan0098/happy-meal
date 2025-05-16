@@ -1,0 +1,113 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'sweetalert2/dist/sweetalert2.min.css';
+
+[data-bs-theme='light'] .swal2-popup {
+    background-color: #fff !important;
+    color: #7b7b7b !important;
+}
+
+/* Dark theme styles for SweetAlert2 */
+[data-bs-theme='dark'] .swal2-popup {
+    background-color: #343a40 !important;
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme='light'] .theme-dialog {
+    background-color: #fff !important;
+    color: #7b7b7b !important;
+}
+
+/* Dark theme styles for SweetAlert2 */
+[data-bs-theme='dark'] .theme-dialog {
+    background-color: #343a40 !important;
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme='dark'] .theme-white {
+    color: #f8f9fa !important;
+}
+
+.theme-dialog {
+    position: fixed;
+    width: 400px;
+    height: 150px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.primary-text {
+    color: var(--primary);
+}
+
+[data-bs-theme='dark'] #chart .apexcharts-text,
+[data-bs-theme='dark'] #chart .apexcharts-title-text {
+    fill: #ffffff;
+}
+
+[data-bs-theme='dark'] #chart .apexcharts-datalabel text {
+    fill: #ffffff;
+}
+
+[data-bs-theme='dark'] #chart .apexcharts-bg {
+    fill: #1e1e1e;
+}
+
+[data-bs-theme='dark'] #chart .apexcharts-gridline {
+    stroke: #444444;
+}
+
+[data-bs-theme='dark'] #chart .apexcharts-xaxis text,
+[data-bs-theme='dark'] #chart .apexcharts-yaxis text {
+    fill: #ffffff;
+}
+
+[data-bs-theme='dark'] #chart .apexcharts-yaxis-title,
+[data-bs-theme='dark'] #chart .apexcharts-xaxis-title {
+    fill: #ffffff;
+}
+
+[data-bs-theme='dark'] #chart .apexcharts-tooltip {
+    background-color: #333333;
+    border-color: #555555;
+    color: #ffffff;
+}
+
+[data-bs-theme='dark'] #chart .apexcharts-xaxis text {
+    fill: #ffffff;
+}
+
+
+[data-bs-theme="dark"] .apexcharts-canvas {
+    background-color: #1e1e2d !important;
+}
+
+[data-bs-theme="dark"] .apexcharts-legend {
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .apexcharts-legend-text {
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .apexcharts-tooltip {
+    background-color: #2a2a38 !important;
+    color: #ffffff !important;
+    border: 1px solid #3e3e5a;
+}
+
+[data-bs-theme="dark"] .apexcharts-title-text {
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .apexcharts-pie-label,
+[data-bs-theme="dark"] .apexcharts-datalabel-label {
+    color: #eb2828 !important;
+}

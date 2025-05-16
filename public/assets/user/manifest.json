@@ -1,0 +1,36 @@
+{
+  "resources/css/image/about-image-bg.svg": {
+    "file": "assets/about-image-bg-nAvXqwOs.svg",
+    "src": "resources/css/image/about-image-bg.svg"
+  },
+  "resources/css/image/contact-information-bg.svg": {
+    "file": "assets/contact-information-bg-BredGrfL.svg",
+    "src": "resources/css/image/contact-information-bg.svg"
+  },
+  "resources/css/image/footer-bg.svg": {
+    "file": "assets/footer-bg-DZrT-g9d.svg",
+    "src": "resources/css/image/footer-bg.svg"
+  },
+  "resources/css/image/page-header-bg.jpg": {
+    "file": "assets/page-header-bg-BJ7GAbR_.jpg",
+    "src": "resources/css/image/page-header-bg.jpg"
+  },
+  "resources/css/image/quote.png": {
+    "file": "assets/quote-b7ixED2n.png",
+    "src": "resources/css/image/quote.png"
+  },
+  "resources/css/visitor/app.css": {
+    "file": "assets/app-pAf6ust1.css",
+    "src": "resources/css/visitor/app.css",
+    "isEntry": true
+  },
+  "resources/js/visitor/app.js": {
+    "file": "assets/app-Bsgo1hdv.js",
+    "name": "app",
+    "src": "resources/js/visitor/app.js",
+    "isEntry": true,
+    "css": [
+      "assets/app-Be9b3THL.css"
+    ]
+  }
+}
