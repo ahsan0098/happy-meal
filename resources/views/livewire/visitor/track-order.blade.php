@@ -3,9 +3,11 @@
         <div class="row my-4 text-center justify-content-center">
             <div class="col-md-6">
                 <div class="position-relative">
-                    <input type="text" wire:model.live.debounce.500="search" class="p-3 w-100 rounded rounded-pill border"
+                    <input type="text" wire:model="search" class="p-3 w-100 rounded rounded-pill border"
                         placeholder="Enter your phone number or email to find orders">
-                    <button class="position-absolute top-50 end-0 translate-middle border-0 bg-transparent fs-1 text-secondary border-start ps-2 h-100 my-0"><i class='bx bx-search-alt '></i></button>
+                    <button wire:click="$refresh"
+                        class="position-absolute top-50 end-0 translate-middle border-0 bg-transparent fs-1 text-secondary border-start ps-2 h-100 my-0"><i
+                            class='bx bx-search-alt '></i></button>
                 </div>
             </div>
         </div>
@@ -19,8 +21,7 @@
                             <p><strong class="fs-4">Order ID :</strong> {{ $order->reference_id }}</p>
                             <p>
                                 <span
-                                    class="badge text-body text-uppercase bg-opacity-50 small fw-semibold py-1 px-3 {{ $order->status == "
-                                    approved" ?'bg-success':'bg-danger' }}">
+                                    class="badge text-body text-uppercase bg-opacity-50 small fw-semibold py-1 px-3 {{ $order->status == 'approved' ?'bg-success':'bg-danger' }}">
                                     {{ $order->status }}
                                 </span>
                             </p>

@@ -61,8 +61,7 @@
                         <div class="form-control">
                             <h6 class="form-label small text-capitalize">Order status:</h6>
                             <span
-                                class="badge text-body text-uppercase bg-opacity-50 small fw-semibold py-1 px-3 {{ $order->status == "
-                                approved" ?'bg-success':'bg-danger' }}">
+                                class="badge text-body text-uppercase bg-opacity-50 small fw-semibold py-1 px-3 {{ $order->status == 'approved' ?'bg-success':'bg-danger' }}">
                                 {{ $order->status }}
                             </span>
                         </div>
