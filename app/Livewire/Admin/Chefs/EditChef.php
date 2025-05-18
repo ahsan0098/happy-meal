@@ -6,72 +6,80 @@ namespace App\Livewire\Admin\Chefs;
 
 use App\Models\Chef;
 use Livewire\Component;
-use Illuminate\Support\Arr;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Validate;
-use App\Livewire\Forms\Admin\Chefs\ChefForm;
 use Illuminate\Validation\ValidationException;
 
 #[Title('Edit Chef')]
 #[Layout('layouts.admin.app')]
-
 class EditChef extends Component
 {
     use WithFileUploads;
 
-    public ChefForm $form;
-
     #[Locked]
     public Chef $chef;
 
-    #[Validate(['image' => 'nullable|image|max:2024'])]
-    public $image = '';
+    public string $name;
+    public string $designation;
+    public string $facebook;
+    public string $twitter;
+    public string $instagram;
+    public string $linkedin;
+    public $image;
 
-
-    public function mount()
+    public function mount(): void
     {
-        $this->form->fill(Arr::except($this->chef->toArray(), ['image']));
-        return null;
+        $this->name = $this->chef->name;
+        $this->designation = $this->chef->designation;
+        $this->facebook = $this->chef->facebook;
+        $this->twitter = $this->chef->twitter;
+        $this->instagram = $this->chef->instagram;
+        $this->linkedin = $this->chef->linkedin;
+    }
+
+    protected function rules(): array
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'designation' => 'required|string|max:255',
+            'facebook' => 'nullable|url',
+            'twitter' => 'nullable|url',
+            'instagram' => 'nullable|url',
+            'linkedin' => 'nullable|url',
+            'image' => 'nullable|image|max:2024',
+        ];
     }
 
     public function updatedImage(): void
     {
         try {
-            $this->validateOnly('image', [
-                'image' => 'image|max:2024',
-            ], [
-                'image.image' => 'The file must be an image.',
-            ]);
+            $this->validateOnly('image');
         } catch (ValidationException) {
             $this->image->delete();
             $this->reset('image');
-
-            return;
         }
-
-        $this->form->image = $this->image;
     }
 
     public function save(): void
     {
+        $validated = $this->validate();
 
-        $this->validate();
-
-        $this->form->validate();
-
-        $this->form->save();
-
-        if ($this->form->swal !== []) {
-            $this->dispatch('swal:alert', $this->form->swal);
-
-            $this->form->swal = [];
-
-            return;
+        if ($this->image) {
+            $validated['image'] = $this->image->store('chefs', 'public');
         }
+
+        $this->chef->update($validated);
+
+        $this->dispatch('swal:alert', [
+            'title' => 'Success!',
+            'text' => 'Chef updated successfully.',
+            'icon' => 'success',
+            'url' => route('admin.chefs.index'),
+
+        ]);
     }
 
     #[Computed]

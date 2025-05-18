@@ -16,41 +16,41 @@
             <div class="row ">
                 <div class="col-12 col-md-6 mb-4">
                     <label for="name" class="small mb-2">Name</label>
-                    <input wire:model="form.name" type="text" class="form-control" name="name" required
+                    <input wire:model="name" type="text" class="form-control" name="name" required
                         placeholder="Enter full name">
-                    <x-admin.form.input-error :messages="$errors->get('form.name')" />
+                    <x-admin.form.input-error :messages="$errors->get('name')" />
                 </div>
                 <div class="col-12 col-md-6 mb-4">
                     <label for="email" class="small mb-2">Email</label>
-                    <input wire:model="form.email" type="email" class="form-control" name="email" required id="email"
+                    <input wire:model="email" type="email" class="form-control" name="email" required id="email"
                         placeholder="Enter your email">
-                    <x-admin.form.input-error :messages="$errors->get('form.email')" />
+                    <x-admin.form.input-error :messages="$errors->get('email')" />
                 </div>
                 <div class="col-12 col-md-6 mb-4">
                     <label for="number" class="small mb-2">Phone Number</label>
-                    <input wire:model="form.phone" type="number" class="form-control" name="phone" required
+                    <input wire:model="phone" type="number" class="form-control" name="phone" required
                         placeholder="Enter your phone">
-                    <x-admin.form.input-error :messages="$errors->get('form.phone')" />
+                    <x-admin.form.input-error :messages="$errors->get('phone')" />
                 </div>
 
                 <div class="col-12 col-md-6 mb-4">
                     <label for="name" class="small mb-2">Bill</label>
-                    <input value="{{ $form->bill}}" type="text" disabled readonly class="form-control" required
+                    <input value="{{ $bill}}" type="text" disabled readonly class="form-control" required
                         placeholder="Your bill">
                 </div>
 
                 <div class="col-12 col-md-6 mb-4">
                     <label for="address" class="small mb-2">Address</label>
-                    <textarea wire:model="form.address" class="form-control" required placeholder="Enter address"
+                    <textarea wire:model="address" class="form-control" required placeholder="Enter address"
                         name="address" rows="3"></textarea>
-                    <x-admin.form.input-error :messages="$errors->get('form.address')" />
+                    <x-admin.form.input-error :messages="$errors->get('address')" />
                 </div>
 
                 <div class="col-12 col-md-6 mb-4">
                     <label for="comments" class="small mb-2">Optional Extra Information</label>
-                    <textarea wire:model="form.comments" class="form-control" placeholder="Enter comments"
+                    <textarea wire:model="comments" class="form-control" placeholder="Enter comments"
                         name="comments" rows="3"></textarea>
-                    <x-admin.form.input-error :messages="$errors->get('form.comments')" />
+                    <x-admin.form.input-error :messages="$errors->get('comments')" />
                 </div>
             </div>
             <div class="mt-3">

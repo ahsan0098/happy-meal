@@ -5,37 +5,41 @@ declare(strict_types=1);
 namespace App\Livewire\Admin\Menus;
 
 use App\Models\Menu;
-use Livewire\Component;
-use Illuminate\Support\Arr;
-use Livewire\WithFileUploads;
-use Livewire\Attributes\Title;
+use App\Services\ImageService;
+use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
-use Livewire\Attributes\Computed;
-use Livewire\Attributes\Validate;
-use App\Livewire\Forms\Admin\Menus\MenuForm;
-use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Title('Edit Menu')]
 #[Layout('layouts.admin.app')]
-
 class EditMenu extends Component
 {
     use WithFileUploads;
 
-    public MenuForm $form;
-
     #[Locked]
     public Menu $menu;
 
-    #[Validate(['image' => 'nullable|image|max:2024'])]
+    public string $name = '';
+    public $is_featured = '0';
     public $image = '';
 
-
-    public function mount()
+    protected function rules(): array
     {
-        $this->form->fill(Arr::except($this->menu->toArray(), ['image']));
-        return null;
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'is_featured' => ['required', 'boolean'],
+            'image' => ['nullable', 'image', 'max:2024'],
+        ];
+    }
+
+    public function mount(): void
+    {
+        $this->name = $this->menu->name;
+        $this->is_featured = $this->menu->is_featured;
     }
 
     public function updatedImage(): void
@@ -49,29 +53,38 @@ class EditMenu extends Component
         } catch (ValidationException) {
             $this->image->delete();
             $this->reset('image');
-
-            return;
         }
-
-        $this->form->image = $this->image;
     }
 
     public function save(): void
     {
+        $validated = $this->validate();
 
-        $this->validate();
+        $this->menu->update([
+            'name' => $this->name,
+            'is_featured' => $this->is_featured,
+        ]);
 
-        $this->form->validate();
-
-        $this->form->save();
-
-        if ($this->form->swal !== []) {
-            $this->dispatch('swal:alert', $this->form->swal);
-
-            $this->form->swal = [];
-
-            return;
+        if ($this->image !== '') {
+            $this->uploadImage($this->menu);
         }
+
+        $this->dispatch('swal:alert', [
+            'icon' => 'success',
+            'title' => 'Menu Updated',
+            'text' => 'The menu has been updated successfully.',
+            'timer' => 3000,
+            'bar' => true,
+            'url' => route('admin.menus.index'),
+        ]);
+    }
+
+    private function uploadImage(Menu $menu): void
+    {
+        $image = ImageService::uploadImage($this->image, 'menus', null);
+        ImageService::deleteImage($menu->image);
+        $menu->image = $image->filepath;
+        $menu->save();
     }
 
     #[Computed]

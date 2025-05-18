@@ -25,52 +25,52 @@
                             <div class="col-md-6">
                                 <div class=" mb-3">
                                     <x-admin.form.input-label value="Item Name" />
-                                    <x-admin.form.input-field wire:model="form.name" />
-                                    <x-admin.form.input-error :messages="$errors->get('form.name')" />
+                                    <x-admin.form.input-field wire:model="name" />
+                                    <x-admin.form.input-error :messages="$errors->get('name')" />
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class=" mb-3">
                                     <x-admin.form.input-label value="Price" />
-                                    <x-admin.form.input-field wire:model="form.price" />
-                                    <x-admin.form.input-error :messages="$errors->get('form.price')" />
+                                    <x-admin.form.input-field wire:model="price" />
+                                    <x-admin.form.input-error :messages="$errors->get('price')" />
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <x-admin.form.input-label value="Feature On Home?" />
-                                    <x-admin.form.select-field wire:model="form.is_featured">
+                                    <x-admin.form.select-field wire:model="is_featured">
                                         <option value="0">No</option>
                                         <option value="1">Yes</option>
                                     </x-admin.form.select-field>
-                                    <x-admin.form.input-error :messages="$errors->get('form.is_featured')" />
+                                    <x-admin.form.input-error :messages="$errors->get('is_featured')" />
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <x-admin.form.input-label value="Menu" />
-                                    <x-admin.form.select-field wire:model="form.menu">
+                                    <x-admin.form.select-field wire:model="menu">
                                         <option value="">Select Menu</option>
                                         @foreach ($this->menus as $mn)
                                             
                                         <option value="{{ $mn->id }}">{{ $mn->name }}</option>
                                         @endforeach
                                     </x-admin.form.select-field>
-                                    <x-admin.form.input-error :messages="$errors->get('form.menu')" />
+                                    <x-admin.form.input-error :messages="$errors->get('menu')" />
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <x-admin.form.input-label value="Is Available?" />
-                                    <x-admin.form.select-field wire:model="form.is_available">
+                                    <x-admin.form.select-field wire:model="is_available">
                                         <option value="0">No</option>
                                         <option value="1">Yes</option>
                                     </x-admin.form.select-field>
-                                    <x-admin.form.input-error :messages="$errors->get('form.is_available')" />
+                                    <x-admin.form.input-error :messages="$errors->get('is_available')" />
                                 </div>
                             </div>
 
@@ -78,8 +78,8 @@
                             <div class="col-12">
                                 <div class=" mb-3">
                                     <x-admin.form.input-label value="Description" />
-                                    <x-admin.form.textarea-field wire:model="form.description" />
-                                    <x-admin.form.input-error :messages="$errors->get('form.description')" />
+                                    <x-admin.form.textarea-field wire:model="description" />
+                                    <x-admin.form.input-error :messages="$errors->get('description')" />
                                 </div>
                             </div>
                         </div>

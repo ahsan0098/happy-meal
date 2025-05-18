@@ -14,47 +14,48 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Auth;
-use App\Livewire\Forms\Admin\Admins\AdminForm;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-/**
- * @property Admin $user
- */
 #[Title('Update Profile')]
 #[Layout('layouts.admin.app')]
 class UpdateProfile extends Component
 {
     use WithFileUploads;
 
-    public AdminForm $form;
+    public $first_name = '';
+    public $last_name = '';
+    public $address = '';
+    public $phone = '';
+    public $username = '';
+    public $email = '';
 
-    #[Validate(['image' => 'required|image|max:1024'])]
+    #[Validate(['image' => 'image|max:1024'])]
     public $image = '';
+
+    public Admin $user;
 
     public function mount(): void
     {
-        $this->form->id = $this->user->id;
-        $this->form->first_name = $this->user->first_name;
-        $this->form->last_name = $this->user->last_name;
-        $this->form->address = $this->user->address;
-        $this->form->phone = $this->user->phone;
-        $this->form->username = $this->user->username;
-        $this->form->email = $this->user->email;
+        $this->user = Auth::guard('admin')->user();
+
+        $this->fill([
+            'first_name' => $this->user->first_name,
+            'last_name' => $this->user->last_name,
+            'address' => $this->user->address,
+            'phone' => $this->user->phone,
+            'username' => $this->user->username,
+            'email' => $this->user->email,
+        ]);
     }
 
     public function updatedImage(): void
     {
         try {
-            $this->validateOnly('image', [
-                'image' => 'image|max:1024',
-            ], [
-                'image.image' => 'The file must be an image.',
-            ]);
+            $this->validateOnly('image');
         } catch (ValidationException) {
             $this->image->delete();
             $this->reset('image');
-
-            return;
         }
     }
 
@@ -62,19 +63,13 @@ class UpdateProfile extends Component
     {
         $this->validate([
             'image' => 'required|image|max:1024',
-        ], [
-            'image.required' => 'A valid image is required.',
-            'image.image' => 'The file must be an image.',
         ]);
 
         try {
-            $image = ImageService::uploadImage($this->image, 'admin/profile', null);
-
+            $image = ImageService::uploadImage($this->image, 'admin/profile');
             ImageService::deleteImage($this->user->image);
 
-            $this->user->image = $image->filepath;
-
-            $this->user->save();
+            $this->user->update(['image' => $image->filepath]);
 
             $this->dispatch('swal:alert', [
                 'icon' => 'success',
@@ -82,8 +77,10 @@ class UpdateProfile extends Component
                 'text' => 'Your profile image has been updated successfully.',
                 'timer' => 5000,
                 'bar' => true,
+                'reload' => true,
+
             ]);
-        } catch (ValidationException) {
+        } catch (\Throwable) {
             $this->image->delete();
             $this->reset('image');
 
@@ -92,36 +89,56 @@ class UpdateProfile extends Component
                 'title' => 'Profile Image Update Failed',
                 'text' => 'An error occurred while updating your profile image.',
                 'timer' => 5000,
+                'reload' => true,
                 'bar' => true,
             ]);
-
-            return;
         }
     }
 
     public function save(): void
     {
-        $this->form->validate();
+        $this->validate([
+            'first_name' => 'required|string|max:191',
+            'last_name' => 'required|string|max:191',
+            'address' => 'nullable|string|max:191',
+            'phone' => 'nullable|string|max:20',
+            'username' => [
+                'required',
+                'string',
+                'max:191',
+                Rule::unique('admins', 'username')->ignore($this->user->id),
+            ],
+            'email' => [
+                'required',
+                'email',
+                'max:191',
+                Rule::unique('admins', 'email')->ignore($this->user->id),
+            ],
+        ]);
 
-        $this->form->save();
+        $this->user->update([
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'address' => $this->address,
+            'phone' => $this->phone,
+            'username' => $this->username,
+            'email' => $this->email,
+        ]);
 
-        if ($this->form->swal !== []) {
-            $this->dispatch('swal:alert', $this->form->swal);
-
-            $this->form->swal = [];
-
-            return;
-        }
+        $this->dispatch('swal:alert', [
+            'icon' => 'success',
+            'title' => 'Profile Updated',
+            'text' => 'Your profile has been updated successfully.',
+            'timer' => 5000,
+            'bar' => true,
+            'reload' => true
+        ]);
     }
 
-    /**
-     * Send an email verification notification to the current user.
-     */
     public function sendVerification(): void
     {
         if ($this->user->hasVerifiedEmail()) {
-            $this->redirectIntended(default: route('admin.profile', absolute: false));
-
+            $this->redirectIntended(route('admin.profile'));
             return;
         }
 
@@ -133,13 +150,9 @@ class UpdateProfile extends Component
             'text' => 'An email verification link has been sent to your email address.',
             'timer' => 5000,
             'bar' => true,
-        ]);
-    }
+            'url' => route('admin.profile'),
 
-    #[Computed]
-    public function user(): ?Admin
-    {
-        return Auth::guard('admin')->user();
+        ]);
     }
 
     #[Computed]

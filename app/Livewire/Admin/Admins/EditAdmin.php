@@ -14,120 +14,125 @@ use Livewire\Attributes\Locked;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Auth;
-use App\Livewire\Forms\Admin\Admins\AdminForm;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-#[Title('Admins')]
+#[Title('Edit Admin')]
 #[Layout('layouts.admin.app')]
-
 class EditAdmin extends Component
 {
     use WithFileUploads;
 
-    public AdminForm $form;
-
     #[Locked]
     public $admin;
 
-    #[Validate(['image' => 'required|image|max:1024'])]
+    public $first_name = '';
+    public $last_name = '';
+    public $address = '';
+    public $phone = '';
+    public $username = '';
+    public $email = '';
+
+    #[Validate(['image' => 'image|max:1024'])]
     public $image = '';
 
-    public $user;
+    public Admin $user;
 
-    public function mount()
+    public function mount(): void
     {
-
-        $this->user = $this->user();
+        $this->user = Admin::findOrFail($this->admin);
 
         if ($this->user->id === Auth::guard('admin')->id()) {
-            return $this->redirect(route('admin.profile'), navigate: true);
+            $this->redirect(route('admin.profile'), navigate: true);
+            return;
         }
 
-        $this->form->id = $this->user->id;
-        $this->form->first_name = $this->user->first_name;
-        $this->form->last_name = $this->user->last_name;
-        $this->form->address = $this->user->address;
-        $this->form->phone = $this->user->phone;
-        $this->form->username = $this->user->username;
-        $this->form->email = $this->user->email;
-
-        return null;
-
+        $this->fill([
+            'first_name' => $this->user->first_name,
+            'last_name' => $this->user->last_name,
+            'address' => $this->user->address,
+            'phone' => $this->user->phone,
+            'username' => $this->user->username,
+            'email' => $this->user->email,
+        ]);
     }
 
     public function updatedImage(): void
     {
-
         try {
-            $this->validateOnly('image', [
-                'image' => 'image|max:1024',
-            ], [
-                'image.image' => 'The file must be an image.',
-            ]);
+            $this->validateOnly('image');
         } catch (ValidationException) {
-
             $this->image->delete();
             $this->reset('image');
-
-            return;
         }
     }
 
     public function saveImage(): void
     {
-        $this->authorize('update:admin', Auth::guard($this->guardName)->user());
+        $this->authorize('update:admin', Auth::guard('admin')->user());
 
         $this->validate([
             'image' => 'required|image|max:1024',
-        ], [
-            'image.required' => 'A valid image is required.',
-            'image.image' => 'The file must be an image.',
         ]);
 
         try {
-            $image = ImageService::uploadImage($this->image, 'admin/profile', null);
-
+            $image = ImageService::uploadImage($this->image, 'admin/profile');
             ImageService::deleteImage($this->user->image);
 
-            $this->user->image = $image->filepath;
-
-            $this->user->save();
+            $this->user->update(['image' => $image->filepath]);
 
             $this->dispatch('swal:alert', [
                 'icon' => 'success',
                 'title' => 'Profile Image Updated',
                 'text' => 'The profile image has been successfully updated.',
                 'timer' => 5000,
+            'reload'=>true,
                 'bar' => true,
             ]);
-        } catch (ValidationException) {
+        } catch (\Throwable) {
             $this->image->delete();
             $this->reset('image');
-
-            return;
         }
     }
 
     public function save(): void
     {
+        $this->validate([
+            'first_name' => 'required|string|max:191',
+            'last_name' => 'required|string|max:191',
+            'address' => 'nullable|string|max:191',
+            'phone' => 'nullable|string|max:20',
+            'username' => [
+                'required',
+                'string',
+                'max:191',
+                Rule::unique('admins', 'username')->ignore($this->user->id),
+            ],
+            'email' => [
+                'required',
+                'email',
+                'max:191',
+                Rule::unique('admins', 'email')->ignore($this->user->id),
+            ],
+        ]);
 
-        $this->form->validate();
+        $this->user->update([
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'address' => $this->address,
+            'phone' => $this->phone,
+            'username' => $this->username,
+            'email' => $this->email,
+        ]);
 
-        $this->form->save();
-
-        if ($this->form->swal !== []) {
-            $this->dispatch('swal:alert', $this->form->swal);
-
-            $this->form->swal = [];
-
-            return;
-        }
-    }
-
-    #[Computed]
-    public function user(): ?Admin
-    {
-        return Admin::query()->findOrFail($this->admin);
+        $this->dispatch('swal:alert', [
+            'icon' => 'success',
+            'title' => 'Admin Updated',
+            'text' => 'Admin information has been updated successfully.',
+            'timer' => 5000,
+            'bar' => true,
+            'url' => route('admin.admins.index'),
+        ]);
     }
 
     #[Computed]

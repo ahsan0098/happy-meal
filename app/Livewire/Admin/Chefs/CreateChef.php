@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Livewire\Admin\Chefs;
 
+use App\Models\Chef;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Validate;
-use App\Livewire\Forms\Admin\Chefs\ChefForm;
 use Illuminate\Validation\ValidationException;
 
 #[Title('Create Chef')]
@@ -19,44 +18,53 @@ class CreateChef extends Component
 {
     use WithFileUploads;
 
-    public ChefForm $form;
+    public string $name = '';
+    public string $designation = '';
+    public string $facebook = '';
+    public string $twitter = '';
+    public string $instagram = '';
+    public string $linkedin = '';
+    public $image;
 
-
-    #[Validate(['image' => 'required|image|max:2024'])]
-    public $image = '';
+    protected function rules(): array
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'designation' => 'required|string|max:255',
+            'facebook' => 'nullable|url',
+            'twitter' => 'nullable|url',
+            'instagram' => 'nullable|url',
+            'linkedin' => 'nullable|url',
+            'image' => 'required|image|max:2024',
+        ];
+    }
 
     public function updatedImage(): void
     {
         try {
-            $this->validateOnly('image', [
-                'image' => 'image|max:2024',
-            ], [
-                'image.image' => 'The file must be an image.',
-            ]);
+            $this->validateOnly('image');
         } catch (ValidationException) {
             $this->image->delete();
             $this->reset('image');
-
-            return;
         }
-
-        $this->form->image = $this->image;
     }
+
     public function save(): void
     {
-        $this->validate();
+        $validated = $this->validate();
 
-        $this->form->validate();
+        $validated['image'] = $this->image->store('chefs', 'public');
 
-        $this->form->save();
+        Chef::create($validated);
 
-        if ($this->form->swal !== []) {
-            $this->dispatch('swal:alert', $this->form->swal);
+        $this->dispatch('swal:alert', [
+            'title' => 'Success!',
+            'text' => 'Chef created successfully.',
+            'icon' => 'success',
+            'url' => route('admin.chefs.index'),
+        ]);
 
-            $this->form->swal = [];
-
-            return;
-        }
+        $this->reset();
     }
 
     #[Computed]

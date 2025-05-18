@@ -4,11 +4,9 @@ namespace App\Livewire\Admin\Subscribers;
 
 use Livewire\Component;
 use App\Models\Subscriber;
-use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
-use Illuminate\Support\Facades\Auth;
 
 #[Title('News Letter')]
 #[Layout('layouts.admin.app')]
