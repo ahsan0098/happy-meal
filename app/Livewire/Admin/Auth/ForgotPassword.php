@@ -8,27 +8,39 @@ use Livewire\Component;
 use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
-use App\Livewire\Forms\Admin\Auth\ForgotPasswordForm;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 #[Title('Admin Forgot Password')]
 #[Layout('layouts.admin.guest')]
 class ForgotPassword extends Component
 {
-    public ForgotPasswordForm $form;
+    public string $email = '';
 
-    /**
-     * Send a password reset link to the provided email address.
-     */
     public function sendPasswordResetLink(): void
     {
-        $this->validate();
+        $this->validate([
+            'email' => 'required|email',
+        ]);
 
-        $this->form->restPassword();
+        $status = Password::broker('admins')->sendResetLink([
+            'email' => $this->email,
+        ]);
 
-        if ($this->form->swal !== []) {
-            $this->dispatch('swal:alert', $this->form->swal);
-            $this->form->swal = [];
-        }
+        $this->reset('email');
+
+        throw_if($status !== Password::RESET_LINK_SENT, ValidationException::withMessages([
+            'email' => __($status),
+        ]));
+
+        $this->dispatch('swal:alert', [
+            'icon' => 'success',
+            'title' => 'Password Reset Link Sent',
+            'text' => __($status),
+        ]);
     }
 
     public function render(): View

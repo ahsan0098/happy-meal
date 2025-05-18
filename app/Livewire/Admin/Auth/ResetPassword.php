@@ -9,7 +9,13 @@ use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
-use App\Livewire\Forms\Admin\Auth\ResetPasswordForm;
+use App\Models\Admin;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException;
 
 #[Title('Admin Reset Password')]
 #[Layout('layouts.admin.guest')]
@@ -19,29 +25,49 @@ class ResetPassword extends Component
     public string $token = '';
 
     #[Locked]
-    public int $id; // User's ID
+    public int $id;
 
-    public ResetPasswordForm $form;
+    public string $password = '';
+    public string $password_confirmation = '';
 
-    /**
-     * Mount the component.
-     */
     public function mount(string $token, int $id): void
     {
-        $this->form->token = $token;
-        $this->form->id = $id;
+        $this->token = $token;
+        $this->id = $id;
 
-        $this->form->verifyToken();
+        $admin = Admin::findOrFail($id);
+        abort_unless(Password::broker('admins')->tokenExists($admin, $token), 404);
     }
 
-    /**
-     * Reset the password for the given user.
-     */
     public function resetPassword(): void
     {
-        $this->validate();
+        $this->validate([
+            'token' => ['required'],
+            'id' => ['required', 'integer', 'exists:admins,id'],
+            'password' => ['required', 'string', Rules\Password::defaults()],
+            'password_confirmation' => ['required', 'same:password'],
+        ]);
 
-        $this->form->resetPassword();
+        $status = Password::broker('admins')->reset(
+            [
+                'token' => $this->token,
+                'id' => $this->id,
+                'password' => $this->password,
+                'password_confirmation' => $this->password_confirmation,
+            ],
+            function (Admin $admin): void {
+                $admin->forceFill([
+                    'password' => Hash::make($this->password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($admin));
+            }
+        );
+
+        throw_if($status !== Password::PASSWORD_RESET, ValidationException::withMessages([
+            'password' => [__($status)],
+        ]));
 
         $this->redirectRoute('admin.login', navigate: true);
     }

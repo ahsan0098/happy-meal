@@ -8,30 +8,51 @@ use Livewire\Component;
 use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use App\Livewire\Forms\Admin\Auth\LoginForm;
 
 #[Title('Admin Login')]
 #[Layout('layouts.admin.guest')]
 class Login extends Component
 {
-    public LoginForm $form;
+    public string $email = '';
+    public string $password = '';
+    public bool $remember = false;
 
     public function login(): void
     {
-        $this->validate();
+        $this->validate([
+            'email' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-        $this->form->authenticate();
+        $credentials = filter_var($this->email, FILTER_VALIDATE_EMAIL)
+            ? ['email' => $this->email, 'password' => $this->password]
+            : ['username' => $this->email, 'password' => $this->password];
 
-        if ($this->form->swal !== []) {
-            $this->dispatch('swal:alert', $this->form->swal);
+        if (!Auth::guard('admin')->attempt($credentials, $this->remember)) {
 
-            $this->form->swal = [];
+            $this->reset('password');
+
+            $this->dispatch('swal:alert', [
+                'icon' => 'error',
+                'title' => 'Login Failed',
+                'text' => trans('auth.failed'),
+            ]);
 
             return;
         }
 
         Session::regenerate();
+      
+
+        $this->dispatch('swal:alert', [
+            'icon' => 'success',
+            'title' => 'Login Successful',
+            'text' => 'You have been logged in successfully!',
+            'url' => route('admin.dashboard'),
+            'timer' => 1000,
+        ]);
     }
 
     public function render(): View
